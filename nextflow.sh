@@ -20,19 +20,23 @@
 GCLOUD_CMD=gcloud
 
 #to get around using cygwin
-if [ $(uname | grep -i 'win') ]; then
+if [ $(uname | grep -i 'win') ] || [ $(uname | grep -i 'NT') ]; then
 	GCLOUD_CMD=gcloud.cmd
+	IAM_TEMP_FILE=`mktemp -p .` || exit 1
+else
+	GCLOUD_CMD=gcloud
+	IAM_TEMP_FILE=`mktemp -t` || exit 1
 fi
 
 #pick up project info from gcloud settings
 PROJECT=$($GCLOUD_CMD info | grep project | awk '{print $2}' | sed -e "s/\\[//g;s/\\]//g")
+
 
 readonly SERVICE_ACCOUNT=nextflow-installer
 readonly ACCOUNT_NAME="Generated-NextFlow-Account"
 SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT_EMAIL:-$SERVICE_ACCOUNT@$PROJECT.iam.gserviceaccount.com}
 JSON_KEY_NAME=ServiceAccount.json
 EXISTING_CREDS=$SERVICE_ACCOUNT
-IAM_TEMP_FILE=`mktemp -p .` || exit 1
 
 PROJECTS_CMD="$GCLOUD_CMD beta"
 IAM_CMD="$GCLOUD_CMD beta"
@@ -108,14 +112,13 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Uploading key "
-
 ntries=0
-maxtries=3
+maxtries=10
 uploadok=1
 while [ $ntries -lt $maxtries ]
 do
 	sleep 60
-	$GCLOUD_CMD compute copy-files ./ServiceAccount.json unicloud-k8s-installer:/tmp 2>/dev/null
+	$GCLOUD_CMD compute copy-files ./ServiceAccount.json unicloud-k8s-installer:/tmp  --quiet 
 	uploadok=$?
 	if [ $uploadok -ne 0 ]; then
 		echo "Upload failed, trying again "
@@ -126,8 +129,9 @@ do
 done 
 
 if [ $uploadok -ne 0 ]; then
-	echo "Attempts to upload service account key failed. Deleting deployment"
+	echo "Attempts to upload service account key failed. Deleting deployment" >&2
 	$GCLOUD_CMD deployment-manager deployments delete nextflow -q
+	exit 1
 fi
 
 echo "Launching cluster.  Please check GCP console"
