@@ -29,8 +29,7 @@ else
 fi
 
 #pick up project info from gcloud settings
-PROJECT=$($GCLOUD_CMD info | grep project | awk '{print $2}' | sed -e "s/\\[//g;s/\\]//g")
-
+PROJECT=$($GCLOUD_CMD config list core/project 2>/dev/null | grep project | awk {'print $3'})
 
 readonly SERVICE_ACCOUNT=nextflow-installer
 readonly ACCOUNT_NAME="Generated-NextFlow-Account"
