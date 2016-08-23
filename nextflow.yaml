@@ -6,9 +6,10 @@ resources:
   type: nextflow.jinja
   properties:
    zone: us-east1-b 
-   installerImage: "https://www.googleapis.com/compute/v1/projects/cloudflow-1278/global/images/uc-v614-20160810-45x"
+   installerImage: "https://www.googleapis.com/compute/v1/projects/cloudflow-1278/global/images/nextflowimage"
    machineType: n1-standard-1
-   numberOfWorkers: 1
+   numberOfWorkers: 2
    clusterMachineType: n1-standard-2
    glusterDiskSize: 10
    clusterMachineImage: "https://www.googleapis.com/compute/v1/projects/cloudflow-1278/global/images/fedora-cloud-atomic-23-20160524"
+   nextflowVersion: "1.1"

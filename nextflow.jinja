@@ -7,6 +7,7 @@
 {% set glusterDiskSize = properties["glusterDiskSize"] %}
 {% set installerImage = properties["installerImage"] %}
 {% set clusterMachineImage = properties["clusterMachineImage"] %}
+{% set nextflowVersion = properties["nextflowVersion"] %}
 
 resources:
 - type: compute.v1.instance
@@ -31,15 +32,16 @@ resources:
        value: {{ glusterDiskSize}}
      - key: clusterMachineImage
        value: {{ clusterMachineImage}}
+     - key: nextflowVersion
+       value: {{ nextflowVersion}}
      - key: startup-script
        value: |
          #!/bin/bash
-         yum install wget git dos2unix -y
          cd /tmp
-         git clone https://github.com/kpandyauniva/blue2 2>nextflow_error.txt
-         cd blue2
-         dos2unix testscript.sh
-         bash testscript.sh&  2>>/tmp/nextflow_error.txt
+         git clone https://github.com/kpandyauniva/Cluster-Setup 2>/tmp/nextflow_error.txt
+         cd /tmp/Cluster-Setup
+         chmod a+x ./init-cluster.sh
+         ./init-cluster.sh& 2>/tmp/init-cluster-err.txt
     networkInterfaces:
     - network: global/networks/default
       accessConfigs:
