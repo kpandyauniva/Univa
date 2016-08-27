@@ -84,10 +84,15 @@ function getdata(){
 	PROJECT=$($GCLOUD_CMD config list core/project 2>/dev/null | grep project | awk {'print $3'})
 	ACCOUNT=$($GCLOUD_CMD config list core/account 2>/dev/null | grep account | awk {'print $3'})
 	SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT_EMAIL:-$SERVICE_ACCOUNT@$PROJECT.iam.gserviceaccount.com}
+	ZONE=$(cat nextflow.yaml | grep -i zone | awk {'print $2'}) 2>/dev/null
 }
 function dologin(){
 	getdata
 
+	if [ -z $ZONE ];
+		echo 'Error: Zone must be spcified in nextflow.yaml' >&2
+		exit 1
+	fi
 	if [ -z $PROJECT ] || [ -z $ACCOUNT ]; then
 		$GCLOUD_CMD auth login --brief
 		getdata
@@ -120,7 +125,7 @@ uploadok=1
 while [ $ntries -lt $maxtries ]
 do
 	sleep 30
-	$GCLOUD_CMD compute copy-files ./ServiceAccount.json unicloud-k8s-installer:/tmp  --quiet 
+	$GCLOUD_CMD compute copy-files ./ServiceAccount.json unicloud-k8s-installer:/tmp  --quiet --zone=$ZONE
 	uploadok=$?
 	if [ $uploadok -ne 0 ]; then
 		echo "Upload failed, trying again "
