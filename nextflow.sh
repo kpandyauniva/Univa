@@ -89,7 +89,7 @@ function getdata(){
 function dologin(){
 	getdata
 
-	if [ -z $ZONE ];
+	if [ -z $ZONE ]; then
 		echo 'Error: Zone must be spcified in nextflow.yaml' >&2
 		exit 1
 	fi
