@@ -32,6 +32,8 @@ readonly SERVICE_ACCOUNT=nextflow-installer
 readonly ACCOUNT_NAME="Generated-NextFlow-Account"
 readonly JSON_KEY_NAME=ServiceAccount.json
 
+UNICLOUD_INSTALLER=unicloud-k8s-installer
+
 PROJECTS_CMD="$GCLOUD_CMD beta"
 IAM_CMD="$GCLOUD_CMD beta"
 
@@ -125,7 +127,7 @@ uploadok=1
 while [ $ntries -lt $maxtries ]
 do
 	sleep 30
-	$GCLOUD_CMD compute copy-files ./ServiceAccount.json unicloud-k8s-installer:/tmp  --quiet --zone=$ZONE
+	$GCLOUD_CMD compute copy-files ./ServiceAccount.json $UNICLOUD_INSTALLER:/tmp  --quiet --zone=$ZONE
 	uploadok=$?
 	if [ $uploadok -ne 0 ]; then
 		echo "Upload failed, trying again "
@@ -141,4 +143,13 @@ if [ $uploadok -ne 0 ]; then
 	exit 1
 fi
 
-echo "Launching cluster.  Please check GCP console"
+echo "Launching cluster......"
+
+clusterready=0
+while [ $clusterready -ne 1 ]
+do
+	sleep 60
+	clusterready=$($GCLOUD_CMD compute ssh $UNICLOUD_INSTALLER --zone=$ZONE mount | grep -i 'gv0' | wc -l)
+	echo "...."
+done
+echo "...ready"
