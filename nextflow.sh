@@ -32,10 +32,13 @@ readonly SERVICE_ACCOUNT=nextflow-installer
 readonly ACCOUNT_NAME="Generated-NextFlow-Account"
 readonly JSON_KEY_NAME=ServiceAccount.json
 
-UNICLOUD_INSTALLER=unicloud-k8s-installer
 
 PROJECTS_CMD="$GCLOUD_CMD beta"
 IAM_CMD="$GCLOUD_CMD beta"
+
+DEPLOYMENT_NAME=${DEPLOYMENT_NAME:-UnivaNextflow}
+INSTALLER_NAME="$DEPLOYMENT_NAME-Installer"
+
 
 # The purpose of this function is to activate a service account, create one if necessary
 function activate_service_account() {
@@ -103,8 +106,10 @@ function dologin(){
 
 dologin
 
+sed "s|UNICLOUD_K8S_INSTALLER_NAME|$INSTALLER_NAME|g;" < nextflow.jinja.template > nextflow.jinja
+
 echo "Checking if deployment exist"
-if $GCLOUD_CMD deployment-manager deployments list 2> /dev/null | grep nextflow > /dev/null 2>&1; then
+if $GCLOUD_CMD deployment-manager deployments list 2> /dev/null | grep $DEPLOYMENT_NAME > /dev/null 2>&1; then
 	echo "Error: Deployment already exist" >&2
 	rm $IAM_TEMP_FILE
 	exit 1
@@ -113,7 +118,7 @@ echo "Creating service account and key.."
 activate_service_account
 rm $IAM_TEMP_FILE
 echo "Creating deployment.."
-$GCLOUD_CMD deployment-manager deployments create nextflow --config=nextflow.yaml
+$GCLOUD_CMD deployment-manager deployments create $DEPLOYMENT_NAME --config=nextflow.yaml
 
 if [ $? -ne 0 ]; then
 	echo " Deployment failed. ">&2
@@ -127,7 +132,7 @@ uploadok=1
 while [ $ntries -lt $maxtries ]
 do
 	sleep 30
-	$GCLOUD_CMD compute copy-files ./ServiceAccount.json $UNICLOUD_INSTALLER:/tmp  --quiet --zone=$ZONE
+	$GCLOUD_CMD compute copy-files ./ServiceAccount.json $INSTALLER_NAME:/tmp  --quiet --zone=$ZONE
 	uploadok=$?
 	if [ $uploadok -ne 0 ]; then
 		echo "Upload failed, trying again "
@@ -139,7 +144,7 @@ done
 
 if [ $uploadok -ne 0 ]; then
 	echo "Attempts to upload service account key failed. Deleting deployment" >&2
-	$GCLOUD_CMD deployment-manager deployments delete nextflow -q
+	$GCLOUD_CMD deployment-manager deployments delete $DEPLOYMENT_NAME -q
 	exit 1
 fi
 
@@ -149,7 +154,7 @@ clusterready=0
 while [ $clusterready -ne 1 ]
 do
 	sleep 60
-	clusterready=$($GCLOUD_CMD compute ssh $UNICLOUD_INSTALLER --zone=$ZONE mount | grep -i 'gv0' | wc -l)
+	clusterready=$($GCLOUD_CMD compute ssh $INSTALLER_NAME --zone=$ZONE mount | grep -i 'gv0' | wc -l)
 	echo "...."
 done
 echo "...ready"
