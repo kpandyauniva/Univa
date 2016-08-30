@@ -11,7 +11,7 @@
 
 resources:
 - type: compute.v1.instance
-  name: unicloud-k8s-installer
+  name: UNICLOUD_K8S_INSTALLER_NAME
   properties:
     zone: {{ zone }}
     machineType: https://www.googleapis.com/compute/v1/projects/{{project}}/zones/{{zone}}/machineTypes/{{ machineType }}
@@ -39,7 +39,7 @@ resources:
          #!/bin/bash
          cd /tmp
          git clone https://github.com/kpandyauniva/Cluster-Setup 2>/tmp/nextflow_error.txt
-         cd /tmp/Cluster-Setup && bash ./init-cluster.sh 2>/tmp/init-cluster-err.txt
+         cd /tmp/Cluster-Setup && bash ./init-cluster.sh 1>/tmp/init-cluster-status.txt 2>/tmp/init-cluster-err.txt
     networkInterfaces:
     - network: global/networks/default
       accessConfigs:
