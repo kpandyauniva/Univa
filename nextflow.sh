@@ -90,6 +90,7 @@ function getdata(){
 	SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT_EMAIL:-$SERVICE_ACCOUNT@$PROJECT.iam.gserviceaccount.com}
 	ZONE=$(cat nextflow.yaml | grep -i zone | awk {'print $2'}) 2>/dev/null
 }
+
 function dologin(){
 	getdata
 
