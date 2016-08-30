@@ -28,8 +28,9 @@ else
         GCLOUD_CMD=gcloud
 fi
 
-DEPLOYMENT_NAME=${DEPLOYMENT_NAME:-UnivaNextflow}
-INSTALLER_NAME="$DEPLOYMENT_NAME-Installer"
+DEPLOYMENT_NAME=${DEPLOYMENT_NAME:-univa-nextflow}
+DEPLOYMENT_NAME="${DEPLOYMENT_NAME,,}"  #make it lowercase
+INSTALLER_NAME=$DEPLOYMENT_NAME-installer
 
 PROJECT=$($GCLOUD_CMD config list core/project 2>/dev/null | grep project | awk {'print $3'})
 ZONE=$(cat nextflow.yaml | grep -i zone | awk {'print $2'}) 2>/dev/null
