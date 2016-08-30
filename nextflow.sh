@@ -35,10 +35,9 @@ readonly JSON_KEY_NAME=ServiceAccount.json
 
 PROJECTS_CMD="$GCLOUD_CMD beta"
 IAM_CMD="$GCLOUD_CMD beta"
-
-DEPLOYMENT_NAME=${DEPLOYMENT_NAME:-UnivaNextflow}
-INSTALLER_NAME="$DEPLOYMENT_NAME-Installer"
-
+DEPLOYMENT_NAME=${DEPLOYMENT_NAME:-univa-nextflow}
+DEPLOYMENT_NAME="${DEPLOYMENT_NAME,,}"  #make it lowercase
+INSTALLER_NAME=$DEPLOYMENT_NAME-installer
 
 # The purpose of this function is to activate a service account, create one if necessary
 function activate_service_account() {
