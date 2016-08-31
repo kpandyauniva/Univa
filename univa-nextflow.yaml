@@ -1,9 +1,9 @@
 imports:
-- path: nextflow.jinja
+- path: univa-nextflow.jinja
 
 resources:
-- name: nextflow_deployment
-  type: nextflow.jinja
+- name: univa-nextflow-deployment
+  type: univa-nextflow.jinja
   properties:
    zone: us-east1-b 
    installerImage: "https://www.googleapis.com/compute/v1/projects/cloudflow-1278/global/images/nextflowimage"
