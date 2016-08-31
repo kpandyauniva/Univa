@@ -1,5 +1,5 @@
 imports:
-- path: nextflow.jinja
+- path: univa-nextflow.jinja
 
 info:
   version: 1.0
