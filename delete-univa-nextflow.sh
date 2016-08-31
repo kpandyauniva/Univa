@@ -33,12 +33,7 @@ DEPLOYMENT_NAME="${DEPLOYMENT_NAME,,}"  #make it lowercase
 INSTALLER_NAME=$DEPLOYMENT_NAME-installer
 
 PROJECT=$($GCLOUD_CMD config list core/project 2>/dev/null | grep project | awk {'print $3'})
-ZONE=$(cat nextflow.yaml | grep -i zone | awk {'print $2'}) 2>/dev/null
-
-if [ -z "$DEPLOYMENT_NAME" ] || [ -z "$INSTALLER_NAME" ]; then
-	echo "Usage:$0 --installer=installer-name --deployment=deployment-name" >&2
-	exit 1
-fi
+ZONE=$(cat univa-nextflow.yaml | grep -i zone | awk {'print $2'}) 2>/dev/null
 
 if ! $GCLOUD_CMD deployment-manager deployments list 2> /dev/null | grep $DEPLOYMENT_NAME > /dev/null 2>&1; then
 	echo "Error: Deployment $DEPLOYMENT_NAME does not exist" >&2

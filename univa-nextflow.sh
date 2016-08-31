@@ -28,8 +28,8 @@ else
 	IAM_TEMP_FILE=`mktemp -t` || exit 1
 fi
 
-readonly SERVICE_ACCOUNT=nextflow-installer
-readonly ACCOUNT_NAME="Generated-NextFlow-Account"
+readonly SERVICE_ACCOUNT=univa-nextflow-installer
+readonly ACCOUNT_NAME="Generated-Univa-NextFlow-Account"
 readonly JSON_KEY_NAME=ServiceAccount.json
 
 
@@ -88,14 +88,14 @@ function getdata(){
 	PROJECT=$($GCLOUD_CMD config list core/project 2>/dev/null | grep project | awk {'print $3'})
 	ACCOUNT=$($GCLOUD_CMD config list core/account 2>/dev/null | grep account | awk {'print $3'})
 	SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT_EMAIL:-$SERVICE_ACCOUNT@$PROJECT.iam.gserviceaccount.com}
-	ZONE=$(cat nextflow.yaml | grep -i zone | awk {'print $2'}) 2>/dev/null
+	ZONE=$(cat univa-nextflow.yaml | grep -i zone | awk {'print $2'}) 2>/dev/null
 }
 
 function dologin(){
 	getdata
 
 	if [ -z $ZONE ]; then
-		echo 'Error: Zone must be spcified in nextflow.yaml' >&2
+		echo 'Error: Zone must be spcified in univa-nextflow.yaml' >&2
 		exit 1
 	fi
 	if [ -z $PROJECT ] || [ -z $ACCOUNT ]; then
@@ -106,7 +106,7 @@ function dologin(){
 
 dologin
 
-sed "s|UNICLOUD_K8S_INSTALLER_NAME|$INSTALLER_NAME|g;" < nextflow.jinja.template > nextflow.jinja
+sed "s|UNICLOUD_K8S_INSTALLER_NAME|$INSTALLER_NAME|g;" < univa-nextflow.jinja.template > univa-nextflow.jinja
 
 echo "Checking if deployment exist"
 if $GCLOUD_CMD deployment-manager deployments list 2> /dev/null | grep $DEPLOYMENT_NAME > /dev/null 2>&1; then
@@ -118,7 +118,7 @@ echo "Creating service account and key.."
 activate_service_account
 rm $IAM_TEMP_FILE
 echo "Creating deployment.."
-$GCLOUD_CMD deployment-manager deployments create $DEPLOYMENT_NAME --config=nextflow.yaml
+$GCLOUD_CMD deployment-manager deployments create $DEPLOYMENT_NAME --config=univa-nextflow.yaml
 
 if [ $? -ne 0 ]; then
 	echo " Deployment failed. ">&2
